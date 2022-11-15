@@ -1,0 +1,54 @@
+1. Thiết kế cơ sở dữ liệu Product_Db
+	+ Product:
+		+ ProductId int primary key auto_increment
+		+ ProductName
+		+ Price
+		+ Title
+		+ ProductImage: ảnh chính của sản phẩm
+		+ Descriptions (CKEditor)
+		+ ProductStatus
+	+ Images: chứa ảnh phụ của sản phẩm
+		+ ImageId int primary key auto_increment
+		+ ImageLink: Chứa link sản phẩm
+		+ ProductId: FK --> Product(ProductId)
+		+ ImageStatus
+2. Xây dựng ứng dụng theo cấu trúc MVC
+3. Thực hiện chức năng thêm mới sản phẩm
+	B1: Xây dựng các procedure
+		+ proc_insertProduct: thêm mới sản phẩm vào bảng Product
+		và trả về productId vừa thêm mới
+		+ proc_insertImages: Thêm mới các ảnh phụ cho sản phẩm vừa
+		thêm mới (productId trả về)
+	B2: Xây dựng productDaoImp
+		+ Xây dựng phương thức save cho phép thêm mới sản phẩm
+			. Gọi procedure proc_insertProduct để thêm mới sản phẩm
+			. Sử dụng vòng lặp gọi procedure proc_insertImages để
+			thêm các ảnh phụ của sản phẩm
+	B3: Xây dựng trang newProduct.jsp cho phép nhập thông tin sản phẩm
+		Lưu ý:
+			+ form phải có method = post và enctype = multipart/form-data
+			+ Nhập Descriptions:
+				. textera name = "descriptions" id = descriptions
+				. download CKEditor về và giải nén
+				. copy toàn bộ thư mục CKEditor đã giải nén vào webapp
+				. import ckeditor.js vào file jsp
+				. replace CKEditor vào textera theo id
+			+ Nhập ảnh chính
+				. input type = "file" name = "proImage"
+			+ Nhập các ảnh phụ
+				. input type = "file" name = "subImages" multiple
+			+ submit form thì form đẩy dữ liệu vào request theo part
+	B4: Ở Servlet
+		+ Cấu hình @MultipartConfig(
+        fileSizeThreshold = 1024 * 1024 * 1 //Tối đa 1M thì có thể lưu ở tomcat,
+        maxFileSize = 1024 * 1024 * 5 //Tối đa mỗi file có dung lượng 5Mb,
+        maxRequestSize = 1024 * 1024 * 10//Tối đa request là 10Mb
+		)
+		+ doPost:
+			. Tạo thư mục chứa ảnh của ứng dụng (đặt ở cùng ổ cứng cài tomcat)
+			. Lấy dữ liệu từ request
+				- Dữ liệu text: request.getParameter(name)
+				- Dữ liệu ảnh: 
+					+ set link ảnh vào đối tượng sản phẩm cần thêm mới
+					+ write ảnh upload vào thư mục đã được tạo
+			. Gọi sang service thêm mới sản phẩm
